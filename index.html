@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Entreprise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Page de connexion -->
+    <div id="login-page" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="logo">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect width="80" height="80" rx="16" fill="#1a365d"/>
+                        <text x="40" y="50" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="white" text-anchor="middle">MGS</text>
+                    </svg>
+                </div>
+                <h1>MGS - Intranet</h1>
+                <p>Connectez-vous pour accéder au portail</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span>Se connecter</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="login-info">
+                <p><strong>Compte admin:</strong> karifadoumbouya004@gmail.com / Conakry224</p>
+                <p><strong>Membre:</strong> Membres01@entreprise.fr / membre123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application principale -->section qui  
+    <div id="app" class="app-container hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-small">
+                    <svg width="40" height="40" viewBox="0 0 60 60" fill="none">
+                        <rect width="60" height="60" rx="12" fill="white"/>
+                        <text x="30" y="38" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#1a365d" text-anchor="middle">MGS</text>
+                    </svg>
+                </div>
+                <span class="company-name">MGS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="#" class="nav-item" data-page="informations">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
+                    </svg>
+                    <span>Informations</span>
+                </a>
+                <a href="#" class="nav-item" data-page="projets">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                    </svg>
+                    <span>Projets</span>
+                </a>
+                <a href="#" class="nav-item" data-page="reglement">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                    </svg>
+                    <span>Règlement</span>
+                </a>
+                <a href="#" class="nav-item" data-page="contributions">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                    </svg>
+                    <span>Contributions</span>
+                </a>
+                <a href="#" class="nav-item" data-page="sanctions">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                    </svg>
+                    <span>Sanctions</span>
+                </a>
+                <a href="#" class="nav-item" data-page="taches">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+                    </svg>
+                    <span>Tâches</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item" data-page="profil">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                    </svg>
+                    <span>Mon Profil</span>
+                </a>
+                <button id="logout-btn" class="nav-item logout">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
+                    </svg>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                </button>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="user-name">Utilisateur</span>
+                        <span id="user-role" class="badge">Membre</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar">
+                        <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Pages -->
+            <div class="content">
+                <!-- Dashboard -->
+                <div id="page-dashboard" class="page active">
+                    <h1>Tableau de bord</h1>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="stat-projets">0</span>
+                                <span class="stat-label">Projets actifs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="stat-taches-terminees">0</span>
+                                <span class="stat-label">Tâches terminées</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="stat-taches-encours">0</span>
+                                <span class="stat-label">Tâches en cours</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon red">
+                                <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="stat-sanctions">0</span>
+                                <span class="stat-label">Sanctions</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>Informations récentes</h3>
+                            <div id="recent-informations" class="recent-list"></div>
+                        </div>
+                        <div class="card">
+                            <h3>Projets en cours</h3>
+                            <div id="projets-encours-list" class="recent-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations -->
+                <div id="page-informations" class="page">
+                    <div class="page-header">
+                        <h1>Informations</h1>
+                        <button class="btn btn-primary" id="add-info-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Nouvelle information
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <select id="filter-categorie" class="filter-select">
+                            <option value="">Toutes les catégories</option>
+                            <option value="communique">Communiqués</option>
+                            <option value="procedure">Procédures</option>
+                            <option value="document">Documents</option>
+                        </select>
+                        <select id="filter-priorite" class="filter-select">
+                            <option value="">Toutes les priorités</option>
+                            <option value="haute">Haute</option>
+                            <option value="moyenne">Moyenne</option>
+                            <option value="basse">Basse</option>
+                        </select>
+                    </div>
+                    <div id="informations-list" class="cards-grid"></div>
+                </div>
+
+                <!-- Projets -->
+                <div id="page-projets" class="page">
+                    <div class="page-header">
+                        <h1>Projets</h1>
+                        <button class="btn btn-primary" id="add-projet-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Nouveau projet
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <select id="filter-projet-statut" class="filter-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="planifie">Planifié</option>
+                            <option value="encours">En cours</option>
+                            <option value="termine">Terminé</option>
+                            <option value="pause">En pause</option>
+                        </select>
+                    </div>
+                    <div class="stats-row">
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="total-projets">0</span>
+                            <span class="stat-label">Total projets</span>
+                        </div>
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="projets-termines">0</span>
+                            <span class="stat-label">Projets terminés</span>
+                        </div>
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="rendement-moyen">0%</span>
+                            <span class="stat-label">Rendement moyen</span>
+                        </div>
+                    </div>
+                    <div id="projets-list" class="cards-grid"></div>
+                </div>
+
+                <!-- Règlement -->
+                <div id="page-reglement" class="page">
+                    <h1>Règlement Intérieur</h1>
+                    <div class="reglement-container">
+                        <div class="card reglement-doc">
+                            <div class="reglement-header">
+                                <h2>Document officiel</h2>
+                                <span class="version">Version 3.0</span>
+                            </div>
+                            <div class="reglement-content">
+                                <h2 class="preambule-title">PRÉAMBULE</h2>
+                                <p class="preambule-text">Le présent règlement intérieur complète les statuts de la MGS.<br>
+                                Il définit les principes de gouvernance, les règles de fonctionnement interne, les obligations des membres ainsi que les mécanismes de discipline et de contrôle, dans le souci de garantir la bonne administration, la transparence et la performance durable de la structure.</p>
+                                
+                                <h2 class="titre">TITRE I : DISPOSITIONS GÉNÉRALES</h2>
+                                
+                                <h3 class="article">Article 1 : Champ d'application</h3>
+                                <p>Le présent règlement s'applique à l'ensemble des membres, dirigeants, responsables d'organes et collaborateurs de la MGS, sans distinction de statut ou de fonction.</p>
+                                
+                                <h3 class="article">Article 2 : Principes directeurs</h3>
+                                <p>La MGS fonde son action sur les principes suivants :</p>
+                                <ul class="principes-list">
+                                    <li><strong>Légalité et conformité</strong> aux textes en vigueur ;</li>
+                                    <li><strong>Bonne gouvernance</strong> ;</li>
+                                    <li><strong>Transparence</strong> administrative et financière ;</li>
+                                    <li><strong>Responsabilité</strong> individuelle et collective ;</li>
+                                    <li><strong>Culture de performance</strong> et de résultats.</li>
+                                </ul>
+                                
+                                <h2 class="titre">TITRE II : ORGANISATION ET FONCTIONNEMENT</h2>
+                                
+                                <h3 class="article">Article 3 : Organes de la structure</h3>
+                                <p>La MGS comprend :</p>
+                                <ol class="organe-list">
+                                    <li>Un organe suprême de décision ;</li>
+                                    <li>Un organe exécutif chargé de la mise en œuvre ;</li>
+                                    <li>Des commissions spécialisées selon les besoins.</li>
+                                </ol>
+                                <p>Les attributions de chaque organe sont définies par les statuts et précisées par des décisions internes.</p>
+                                
+                                <h3 class="article">Article 4 : Réunions</h3>
+                                <ul class="reunion-list">
+                                    <li>Les réunions ordinaires sont tenues périodiquement selon un calendrier établi ;</li>
+                                    <li>Les réunions extraordinaires peuvent être convoquées en cas de nécessité ;</li>
+                                    <li>Toute réunion donne lieu à un procès-verbal signé et archivé.</li>
+                                </ul>
+                                
+                                <h3 class="article">Article 5 : Prise de décision</h3>
+                                <p>Les décisions sont prises :</p>
+                                <ul class="decision-list">
+                                    <li>Soit par consensus ;</li>
+                                    <li>Soit par vote à la majorité simple ou qualifiée selon l'importance de la décision.</li>
+                                </ul>
+                                
+                                <h2 class="titre">TITRE III : MEMBRES</h2>
+                                
+                                <h3 class="article">Article 6 : Conditions d'adhésion</h3>
+                                <p>L'adhésion est subordonnée :</p>
+                                <ul class="adhésion-list">
+                                    <li>À l'acceptation des statuts et du présent règlement ;</li>
+                                    <li>Au paiement des droits d'adhésion et cotisations ;</li>
+                                    <li>À l'engagement formel de respecter les valeurs de la MGS.</li>
+                                </ul>
+                                
+                                <h3 class="article">Article 7 : Catégories de membres</h3>
+                                <p>La MGS peut comprendre :</p>
+                                <ul class="membres-list">
+                                    <li>Membres fondateurs ;</li>
+                                    <li>Membres actifs ;</li>
+                                    <li>Membres d'honneur ;</li>
+                                    <li>Partenaires associés.</li>
+                                </ul>
+                                <p>Les droits et obligations peuvent varier selon la catégorie.</p>
+                                
+                                <h2 class="titre">TITRE IV : DISCIPLINE ET ÉTHIQUE</h2>
+                                
+                                <h3 class="article">Article 8 : Code de conduite</h3>
+                                <p>Tout membre doit :</p>
+                                <ul class="conduite-list">
+                                    <li>Agir avec loyauté et intégrité ;</li>
+                                    <li>Éviter tout conflit d'intérêts ;</li>
+                                    <li>Respecter la confidentialité des informations internes ;</li>
+                                    <li>Préserver l'image et la réputation de la MGS.</li>
+                                </ul>
+                                
+                                <h3 class="article">Article 9 : Fautes disciplinaires</h3>
+                                <p>Constituent notamment des fautes :</p>
+                                <ul class="fautes-list">
+                                    <li>Le non-respect des décisions ;</li>
+                                    <li>Le détournement ou la mauvaise gestion des ressources ;</li>
+                                    <li>Les propos diffamatoires ou comportements nuisibles ;</li>
+                                    <li>Le non-paiement répété des cotisations.</li>
+                                </ul>
+                                
+                                <h2 class="titre">TITRE V : GESTION FINANCIÈRE</h2>
+                                
+                                <h3 class="article">Article 10 : Ressources</h3>
+                                <p>Les ressources de la MGS comprennent :</p>
+                                <ul class="ressources-list">
+                                    <li>Les cotisations des membres (<strong>100 000 GNF par trimestre</strong>) ;</li>
+                                    <li>Les dons et subventions ;</li>
+                                    <li>Les produits d'activités autorisées.</li>
+                                </ul>
+                                
+                                <h3 class="article">Article 11 : Principes de gestion</h3>
+                                <p>La gestion financière repose sur :</p>
+                                <ul class="gestion-list">
+                                    <li>La traçabilité des opérations ;</li>
+                                    <li>La séparation des fonctions d'ordonnateur et de trésorier ;</li>
+                                    <li>L'établissement de rapports financiers périodiques ;</li>
+                                    <li>La possibilité d'audit interne ou externe.</li>
+                                </ul>
+                                
+                                <h2 class="titre">TITRE VI : SANCTIONS</h2>
+                                
+                                <h3 class="article">Article 12 : Procédure disciplinaire</h3>
+                                <p>Avant toute sanction :</p>
+                                <ul class="procedure-list">
+                                    <li>Le membre concerné est informé des faits qui lui sont reprochés ;</li>
+                                    <li>Il dispose d'un droit de réponse ;</li>
+                                    <li>La décision est prise par l'organe compétent.</li>
+                                </ul>
+                                
+                                <h3 class="article">Article 13 : Échelle des sanctions</h3>
+                                <p>Les sanctions peuvent être :</p>
+                                <ol class="sanctions-list">
+                                    <li>Avertissement écrit ;</li>
+                                    <li>Blâme ;</li>
+                                    <li>Suspension temporaire ;</li>
+                                    <li>Exclusion définitive.</li>
+                                </ol>
+                                
+                                <h2 class="titre">TITRE VII : RÉVISION ET DISPOSITIONS FINALES</h2>
+                                
+                                <h3 class="article">Article 14 : Modification</h3>
+                                <p>Toute modification du présent règlement doit être adoptée par l'organe décisionnel à la majorité requise.</p>
+                                
+                                <h3 class="article">Article 15 : Entrée en vigueur</h3>
+                                <p>Le présent règlement intérieur entre en vigueur dès son adoption et s'impose à tous les membres.</p>
+                                
+                                <p class="last-update">Dernière mise à jour : <span id="reglement-date"></span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Autres règles</h3>
+                            <div id="regles-list" class="regles-list"></div>
+                            <button class="btn btn-secondary" id="add-regle-btn">Ajouter une règle</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contributions -->
+                <div id="page-contributions" class="page">
+                    <div class="page-header">
+                        <h1>Contributions des Membres</h1>
+                        <button class="btn btn-primary" id="add-contribution-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Nouvelle contribution
+                        </button>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="total-contributions-montant">0 GNF</span>
+                            <span class="stat-label">Total des contributions</span>
+                        </div>
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="total-contributions-count">0</span>
+                            <span class="stat-label">Nombre de contributions</span>
+                        </div>
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="membres-contribuant">0</span>
+                            <span class="stat-label">Membres contributeurs</span>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <select id="filter-contribution-membre" class="filter-select">
+                            <option value="">Tous les membres</option>
+                        </select>
+                    </div>
+                    
+                    <div class="contributions-container">
+                        <div class="card">
+                            <h3>Historique des contributions</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Membre</th>
+                                        <th>Type</th>
+                                        <th>Montant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contributions-table"></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Contributions par membre</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Membre</th>
+                                        <th>Total contributions</th>
+                                        <th>Nombre de contributions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contributions-par-membre-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sanctions -->
+                <div id="page-sanctions" class="page">
+                    <div class="page-header">
+                        <h1>Sanctions & Contributions</h1>
+                        <button class="btn btn-primary" id="add-sanction-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Nouvelle sanction
+                        </button>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="total-contributions">0 €</span>
+                            <span class="stat-label">Total des contributions</span>
+                        </div>
+                        <div class="card stat-simple">
+                            <span class="stat-number" id="total-sanctions-count">0</span>
+                            <span class="stat-label">Nombre de sanctions</span>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <select id="filter-membre" class="filter-select">
+                            <option value="">Tous les membres</option>
+                        </select>
+                    </div>
+                    
+                    <div class="sanctions-container">
+                        <div class="card">
+                            <h3>Historique des sanctions</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Membre</th>
+                                        <th>Motif</th>
+                                        <th>Montant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sanctions-table"></tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Contributions par membre</h3>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Membre</th>
+                                        <th>Total contributions</th>
+                                        <th>Nombre de sanctions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contributions-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tâches -->
+                <div id="page-taches" class="page">
+                    <div class="page-header">
+                        <h1>Tâches</h1>
+                        <button class="btn btn-primary" id="add-tache-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Nouvelle tâche
+                        </button>
+                    </div>
+                    <div class="filters">
+                        <select id="filter-tache-statut" class="filter-select">
+                            <option value="">Tous les statuts</option>
+                            <option value="afaire">À faire</option>
+                            <option value="encours">En cours</option>
+                            <option value="termine">Terminé</option>
+                        </select>
+                        <select id="filter-tache-membre" class="filter-select">
+                            <option value="">Tous les membres</option>
+                        </select>
+                    </div>
+                    <div id="taches-list" class="taches-grid"></div>
+                </div>
+
+                <!-- Profil -->
+                <div id="page-profil" class="page">
+                    <h1>Mon Profil</h1>
+                    <div class="profil-container">
+                        <div class="card">
+                            <div class="profil-header">
+                                <div class="profil-avatar">
+                                    <svg width="64" height="64" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 id="profil-nom">Nom Prénom</h2>
+                                    <span id="profil-email" class="text-muted">email@entreprise.fr</span>
+                                </div>
+                            </div>
+                            <div class="profil-stats">
+                                <div class="profil-stat">
+                                    <span class="label">Rôle</span>
+                                    <span class="value" id="profil-role">Membre</span>
+                                </div>
+                                <div class="profil-stat">
+                                    <span class="label">Membre depuis</span>
+                                    <span class="value" id="profil-date">Janvier 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Modifier mes informations</h3>
+                            <form id="profil-form">
+                                <div class="form-group">
+                                    <label for="profil-nom-input">Nom complet</label>
+                                    <input type="text" id="profil-nom-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profil-email-input">Email</label>
+                                    <input type="email" id="profil-email-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profil-photo-input">Photo de profil (URL)</label>
+                                    <input type="url" id="profil-photo-input" placeholder="https://exemple.com/photo.jpg">
+                                    <small class="text-muted">Entrez l'URL d'une image en ligne</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            </form>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Changer le mot de passe</h3>
+                            <form id="password-form">
+                                <div class="form-group">
+                                    <label for="current-password">Mot de passe actuel</label>
+                                    <input type="password" id="current-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="new-password">Nouveau mot de passe</label>
+                                    <input type="password" id="new-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm-password">Confirmer le mot de passe</label>
+                                    <input type="password" id="confirm-password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Titre</h2>
+                <button class="modal-close" id="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
