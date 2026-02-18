@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnostic Connexion</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 900px; margin: 0 auto; }
+        .info { padding: 15px; margin: 10px 0; border-radius: 5px; background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .success { background: #d4edda; border-left-color: #28a745; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        button { padding: 12px 24px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        h2 { margin-top: 30px; color: #333; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .login-form { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin: 20px 0; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnostic de Connexion - Intranet MGS</h1>
+    
+    <div id="status"></div>
+    
+    <div>
+        <h2>Étape 1: Diagnostic rapide</h2>
+        <button onclick="diagnostic()">🔍 Lancer le diagnostic complet</button>
+        <button class="danger" onclick="forcerReinitialisation()">🔄 Forcer la réinitialisation</button>
+        <button class="success" onclick="window.location.href='index.html'">➡️ Aller à l'application</button>
+    </div>
+    
+    <div class="login-form">
+        <h2>Étape 2: Tester une connexion</h2>
+        <input type="email" id="test-email" placeholder="Email" value="Membres01@entreprise.fr">
+        <input type="password" id="test-password" placeholder="Mot de passe" value="membre123">
+        <button onclick="testerConnexion()">🔐 Tester cette connexion</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script src="app.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function diagnostic() {
+            document.getElementById('results').innerHTML = '';
+            log('🔍 Début du diagnostic...', 'info');
+            
+            try {
+                // 1. Vérifier que app.js est chargé
+                if (typeof DB_KEYS === 'undefined') {
+                    log('❌ ERREUR: app.js n\'est pas chargé correctement', 'error');
+                    return;
+                }
+                log('✅ app.js est chargé', 'success');
+                
+                // 2. Initialiser les données
+                initDefaultData();
+                log('✅ initDefaultData() exécuté', 'success');
+                
+                // 3. Récupérer les utilisateurs
+                const users = getData(DB_KEYS.USERS);
+                log('✅ ' + users.length + ' utilisateurs trouvés', 'success');
+                
+                if (users.length === 0) {
+                    log('⚠️ ATTENTION: Aucun utilisateur dans la base. Cliquez sur "Forcer la réinitialisation"', 'warning');
+                    return;
+                }
+                
+                // 4. Afficher les utilisateurs
+                log('<h3>👥 Liste des utilisateurs:</h3>', 'info');
+                users.forEach((user, index) => {
+                    const emoji = user.role === 'admin' ? '👑' : user.role === 'cadre' ? '💼' : user.role === 'responsable' ? '📋' : '👤';
+                    log(`${emoji} <strong>${user.prenom} ${user.nom}</strong><br>
+                        &nbsp;&nbsp;&nbsp;📧 Email: <code>${user.email}</code><br>
+                        &nbsp;&nbsp;&nbsp;🔑 Mot de passe: <code>${user.password}</code><br>
+                        &nbsp;&nbsp;&nbsp;👔 Rôle: <strong>${user.role}</strong>`, 
+                        index === 0 ? 'warning' : 'info');
+                });
+                
+                // 5. Vérifier PERMISSIONS
+                if (typeof PERMISSIONS === 'undefined') {
+                    log('❌ ERREUR: PERMISSIONS n\'est pas défini', 'error');
+                } else {
+                    log('✅ PERMISSIONS est défini', 'success');
+                    log('<pre>' + JSON.stringify(PERMISSIONS, null, 2) + '</pre>', 'info');
+                }
+                
+                // 6. Vérifier localStorage
+                const storageSize = new Blob(Object.values(localStorage)).size;
+                log('💾 Taille du localStorage: ' + (storageSize / 1024).toFixed(2) + ' KB', 'info');
+                
+                log('<h3>✅ Diagnostic terminé!</h3>', 'success');
+                log('Vous pouvez maintenant tester une connexion ci-dessus.', 'info');
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error');
+                console.error('Erreur complète:', error);
+            }
+        }
+        
+        function testerConnexion() {
+            document.getElementById('status').innerHTML = '';
+            
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            log('<h3>🔐 Test de connexion...</h3>', 'info');
+            log('📧 Email: <code>' + email + '</code><br>🔑 Mot de passe: <code>' + password + '</code>', 'info');
+            
+            try {
+                const users = getData(DB_KEYS.USERS);
+                log('✅ Récupération de ' + users.length + ' utilisateurs', 'success');
+                
+                // Recherche manuelle
+                const foundUser = users.find(u => u.email === email);
+                if (!foundUser) {
+                    log('❌ Aucun utilisateur trouvé avec l\'email: ' + email, 'error');
+                    log('⚠️ Vérifiez que l\'email est exactement: <code>Membres01@entreprise.fr</code> (sensible à la casse)', 'warning');
+                    return;
+                }
+                
+                log('✅ Utilisateur trouvé: ' + foundUser.prenom + ' ' + foundUser.nom, 'success');
+                
+                if (foundUser.password !== password) {
+                    log('❌ Mot de passe incorrect', 'error');
+                    log('Mot de passe attendu: <code>' + foundUser.password + '</code><br>Mot de passe fourni: <code>' + password + '</code>', 'error');
+                    return;
+                }
+                
+                log('✅ Mot de passe correct', 'success');
+                
+                // Tester la fonction login
+                const result = login(email, password);
+                
+                if (result.success) {
+                    log('✅✅✅ CONNEXION RÉUSSIE!', 'success');
+                    log('👤 Utilisateur connecté: <strong>' + currentUser.prenom + ' ' + currentUser.nom + '</strong>', 'success');
+                    log('👔 Rôle: <strong>' + currentUser.role + '</strong>', 'success');
+                    
+                    if (PERMISSIONS[currentUser.role]) {
+                        log('🔓 Accès autorisé à ' + PERMISSIONS[currentUser.role].length + ' pages', 'success');
+                    }
+                    
+                    log('<h3>✅ La connexion fonctionne correctement!</h3>', 'success');
+                    log('Vous pouvez maintenant aller sur l\'application et vous connecter.', 'success');
+                    
+                    // Créer un bouton pour se connecter directement
+                    setTimeout(() => {
+                        const statusDiv = document.getElementById('status');
+                        statusDiv.innerHTML = '<div class="success" style="padding: 20px; text-align: center;"><h2>✅ Connexion testée avec succès!</h2><button class="success" onclick="allerVersApp()" style="font-size: 18px; padding: 15px 30px;">➡️ Se connecter sur l\'application</button></div>';
+                    }, 500);
+                    
+                } else {
+                    log('❌ Échec de connexion: ' + result.message, 'error');
+                }
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error');
+                console.error('Erreur complète:', error);
+            }
+        }
+        
+        function forcerReinitialisation() {
+            if (!confirm('⚠️ ATTENTION: Cette action va supprimer TOUTES les données et créer de nouveaux utilisateurs.\n\nÊtes-vous sûr de vouloir continuer?')) {
+                return;
+            }
+            
+            document.getElementById('results').innerHTML = '';
+            log('🔄 Réinitialisation en cours...', 'warning');
+            
+            // Vider complètement le localStorage
+            localStorage.clear();
+            log('✅ localStorage vidé', 'success');
+            
+            // Forcer la création des données
+            initDefaultData();
+            log('✅ Données réinitialisées', 'success');
+            
+            // Vérifier
+            const users = getData(DB_KEYS.USERS);
+            log('✅ ' + users.length + ' utilisateurs créés', 'success');
+            
+            log('<h3>✅ Réinitialisation terminée!</h3>', 'success');
+            log('Cliquez sur "Lancer le diagnostic complet" pour vérifier.', 'info');
+        }
+        
+        function allerVersApp() {
+            window.location.href = 'index.html';
+        }
+        
+        // Auto-diagnostic au chargement
+        window.onload = function() {
+            document.getElementById('status').innerHTML = '<div class="info"><strong>👋 Bienvenue sur la page de diagnostic</strong><br>Cliquez sur "Lancer le diagnostic complet" pour commencer.</div>';
+        };
+    </script>
+</body>
+</html>

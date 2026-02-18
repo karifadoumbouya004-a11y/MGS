@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Connexion Membres</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de Connexion des Membres</h1>
+    
+    <div id="test-results"></div>
+    
+    <button onclick="afficherTousLesUtilisateurs()">Afficher tous les utilisateurs</button>
+    <button onclick="testerConnexionMembre()">Tester connexion Membre01</button>
+    <button onclick="testerConnexionAdmin()">Tester connexion Admin</button>
+    <button onclick="resetData()">Réinitialiser les données</button>
+    <button onclick="window.location.href='index.html'">Aller à l'application</button>
+    
+    <div id="users-table"></div>
+    
+    <script src="app.js"></script>
+    <script>
+        function addResult(message, isSuccess) {
+            const results = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = 'test-result ' + (isSuccess ? 'success' : 'error');
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        function afficherTousLesUtilisateurs() {
+            document.getElementById('test-results').innerHTML = '';
+            
+            try {
+                initDefaultData();
+                const users = getData(DB_KEYS.USERS);
+                
+                if (users.length === 0) {
+                    addResult('✗ Aucun utilisateur trouvé dans la base de données', false);
+                    return;
+                }
+                
+                addResult('✓ ' + users.length + ' utilisateur(s) trouvé(s)', true);
+                
+                let tableHTML = '<h2>Liste des utilisateurs</h2>';
+                tableHTML += '<table>';
+                tableHTML += '<tr><th>ID</th><th>Email</th><th>Mot de passe</th><th>Nom</th><th>Prénom</th><th>Rôle</th><th>Action</th></tr>';
+                
+                users.forEach(user => {
+                    tableHTML += '<tr>';
+                    tableHTML += '<td>' + user.id + '</td>';
+                    tableHTML += '<td>' + user.email + '</td>';
+                    tableHTML += '<td>' + user.password + '</td>';
+                    tableHTML += '<td>' + user.nom + '</td>';
+                    tableHTML += '<td>' + user.prenom + '</td>';
+                    tableHTML += '<td>' + user.role + '</td>';
+                    tableHTML += '<td><button onclick="testerConnexionUtilisateur(\'' + user.email + '\', \'' + user.password + '\')">Tester</button></td>';
+                    tableHTML += '</tr>';
+                });
+                
+                tableHTML += '</table>';
+                document.getElementById('users-table').innerHTML = tableHTML;
+                
+            } catch (error) {
+                addResult('✗ Erreur: ' + error.message, false);
+                console.error('Erreur complète:', error);
+            }
+        }
+        
+        function testerConnexionUtilisateur(email, password) {
+            document.getElementById('test-results').innerHTML = '';
+            
+            try {
+                addResult('Test de connexion pour: ' + email, true);
+                
+                const result = login(email, password);
+                
+                if (result.success) {
+                    addResult('✓ Connexion réussie!', true);
+                    addResult('  Utilisateur: ' + currentUser.prenom + ' ' + currentUser.nom, true);
+                    addResult('  Rôle: ' + currentUser.role, true);
+                    
+                    // Tester les permissions
+                    if (PERMISSIONS[currentUser.role]) {
+                        addResult('  Permissions: ' + PERMISSIONS[currentUser.role].length + ' pages autorisées', true);
+                        addResult('  Pages: ' + PERMISSIONS[currentUser.role].join(', '), true);
+                    } else {
+                        addResult('✗ Aucune permission définie pour le rôle ' + currentUser.role, false);
+                    }
+                } else {
+                    addResult('✗ Échec de connexion: ' + result.message, false);
+                }
+                
+            } catch (error) {
+                addResult('✗ Erreur: ' + error.message, false);
+                console.error('Erreur complète:', error);
+            }
+        }
+        
+        function testerConnexionMembre() {
+            testerConnexionUtilisateur('Membres01@entreprise.fr', 'membre123');
+        }
+        
+        function testerConnexionAdmin() {
+            testerConnexionUtilisateur('karifadoumbouya004@gmail.com', 'Conakry224');
+        }
+        
+        function resetData() {
+            if (confirm('Voulez-vous vraiment réinitialiser toutes les données ?')) {
+                Object.values(DB_KEYS).forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                addResult('✓ Données réinitialisées', true);
+                addResult('Cliquez sur "Afficher tous les utilisateurs" pour recharger', true);
+                document.getElementById('users-table').innerHTML = '';
+            }
+        }
+        
+        // Auto-affichage au chargement
+        window.onload = function() {
+            addResult('Page de test chargée. Cliquez sur "Afficher tous les utilisateurs"', true);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Intranet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de l'Intranet MGS</h1>
+    
+    <h2>Tests de Chargement</h2>
+    <div id="tests"></div>
+    
+    <h2>Tests de Navigation</h2>
+    <button onclick="testLogin()">Test Connexion</button>
+    <button onclick="testNavigation()">Test Navigation</button>
+    <button onclick="testPermissions()">Test Permissions</button>
+    
+    <h2>Résultats</h2>
+    <div id="results"></div>
+
+    <script src="app.js"></script>
+    <script src="app-extended.js"></script>
+    <script>
+        const testsDiv = document.getElementById('tests');
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(message, isSuccess) {
+            const div = document.createElement('div');
+            div.className = 'test-result ' + (isSuccess ? 'success' : 'error');
+            div.textContent = message;
+            testsDiv.appendChild(div);
+        }
+        
+        // Tests au chargement
+        addResult('✓ app.js chargé', typeof getData === 'function');
+        addResult('✓ app-extended.js chargé', typeof loadDashboardExtended === 'function');
+        addResult('✓ DB_KEYS défini', typeof DB_KEYS === 'object');
+        addResult('✓ PERMISSIONS défini', typeof PERMISSIONS === 'object');
+        addResult('✓ hasPermission défini', typeof hasPermission === 'function');
+        addResult('✓ loadDocuments défini', typeof loadDocuments === 'function');
+        addResult('✓ loadMessages défini', typeof loadMessages === 'function');
+        addResult('✓ loadReunions défini', typeof loadReunions === 'function');
+        addResult('✓ loadPerformance défini', typeof loadPerformance === 'function');
+        addResult('✓ loadAuditLog défini', typeof loadAuditLog === 'function');
+        
+        function testLogin() {
+            resultsDiv.innerHTML = '<h3>Test de Connexion</h3>';
+            const result = login('karifadoumbouya004@gmail.com', 'Conakry224');
+            
+            if (result.success) {
+                resultsDiv.innerHTML += '<div class="test-result success">✓ Connexion réussie!</div>';
+                resultsDiv.innerHTML += '<div class="test-result success">Utilisateur: ' + currentUser.prenom + ' ' + currentUser.nom + '</div>';
+                resultsDiv.innerHTML += '<div class="test-result success">Rôle: ' + currentUser.role + '</div>';
+            } else {
+                resultsDiv.innerHTML += '<div class="test-result error">✗ Échec de connexion: ' + result.message + '</div>';
+            }
+        }
+        
+        function testNavigation() {
+            resultsDiv.innerHTML = '<h3>Test de Navigation</h3>';
+            const pages = ['dashboard', 'informations', 'projets', 'documents', 'messages', 'reunions', 'performance', 'gestion', 'audit'];
+            
+            pages.forEach(page => {
+                try {
+                    const canAccess = hasPermission(page);
+                    resultsDiv.innerHTML += '<div class="test-result ' + (canAccess ? 'success' : 'error') + '">' + 
+                        page + ': ' + (canAccess ? '✓ Accès autorisé' : '✗ Accès refusé') + '</div>';
+                } catch (e) {
+                    resultsDiv.innerHTML += '<div class="test-result error">' + page + ': Erreur - ' + e.message + '</div>';
+                }
+            });
+        }
+        
+        function testPermissions() {
+            resultsDiv.innerHTML = '<h3>Test des Permissions</h3>';
+            if (!currentUser) {
+                resultsDiv.innerHTML += '<div class="test-result error">Connectez-vous d\'abord!</div>';
+                return;
+            }
+            
+            const userPerms = PERMISSIONS[currentUser.role] || [];
+            resultsDiv.innerHTML += '<div class="test-result success">Rôle: ' + currentUser.role + '</div>';
+            resultsDiv.innerHTML += '<div class="test-result success">Permissions: ' + userPerms.join(', ') + '</div>';
+        }
+    </script>
+</body>
+</html>

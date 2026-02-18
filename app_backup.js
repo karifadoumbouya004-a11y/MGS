@@ -269,7 +269,7 @@ function initDefaultData() {
     if (!localStorage.getItem(DB_KEYS.COTISATIONS)) {
         const cotisations = [];
         const users = JSON.parse(localStorage.getItem(DB_KEYS.USERS) || '[]');
-        users.forEach(function(user) {
+        users.filter(u => u.role === 'membre').forEach(function(user) {
             cotisations.push({
                 id: user.id,
                 membreId: user.id,
@@ -347,10 +347,6 @@ function initDefaultData() {
 }
 
 // ==================== Utility Functions ====================
-
-// getData et saveData sont désormais des alias synchrones sur le cache local.
-// Pour les opérations réelles, utilisez getDataAsync / saveDataAsync / insertRecordAsync
-// définis dans supabase.js.
 function getData(key) {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
@@ -377,10 +373,6 @@ function formatDateTime(dateString) {
 }
 
 function addAuditLog(action, details) {
-    if (typeof addAuditLogAsync === 'function') {
-        addAuditLogAsync(action, details).catch(err => console.error('addAuditLogAsync error:', err));
-        return;
-    }
     const logs = getData(DB_KEYS.AUDIT_LOG);
     logs.push({
         id: generateId(DB_KEYS.AUDIT_LOG),
@@ -394,11 +386,6 @@ function addAuditLog(action, details) {
 }
 
 function createNotification(userId, titre, message, type, lienPage) {
-    if (typeof createNotificationAsync === 'function') {
-        createNotificationAsync(userId, titre, message, type, lienPage)
-            .catch(err => console.error('createNotificationAsync error:', err));
-        return;
-    }
     const notifications = getData(DB_KEYS.NOTIFICATIONS);
     notifications.push({
         id: generateId(DB_KEYS.NOTIFICATIONS),
@@ -415,7 +402,6 @@ function createNotification(userId, titre, message, type, lienPage) {
 
 function hasPermission(page) {
     if (!currentUser) return false;
-    if (!PERMISSIONS) return true; // Si PERMISSIONS n'existe pas, autoriser
     const userPermissions = PERMISSIONS[currentUser.role] || [];
     return userPermissions.includes(page);
 }
@@ -450,39 +436,19 @@ function checkSession() {
 }
 
 function login(email, password) {
-    if (typeof loginSupabase === 'function') {
-        loginSupabase(email, password).then(result => {
-            if (result.success) {
-                showApp();
-            } else {
-                const errEl = document.getElementById('login-error');
-                if (errEl) errEl.textContent = result.message;
-            }
-        }).catch(err => {
-            console.error('loginSupabase error:', err);
-            const errEl = document.getElementById('login-error');
-            if (errEl) errEl.textContent = 'Erreur de connexion au serveur.';
-        });
-        return null;
-    }
     const users = getData(DB_KEYS.USERS);
     const user = users.find(u => u.email === email && u.password === password);
+    
     if (user) {
-        if (user.statut === 'bloque') {
-            return { success: false, message: 'Votre compte a été bloqué. Contactez l\'administrateur.' };
-        }
         currentUser = user;
         localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(user));
         return { success: true };
     }
+    
     return { success: false, message: 'Email ou mot de passe incorrect' };
 }
 
 function logout() {
-    if (typeof logoutSupabase === 'function') {
-        logoutSupabase();
-        return;
-    }
     currentUser = null;
     localStorage.removeItem(DB_KEYS.SESSION);
     showLogin();
@@ -495,28 +461,12 @@ function showLogin() {
 }
 
 function showApp() {
-    try {
-        document.getElementById('login-page').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-        updateUserInfo();
-        
-        try {
-            updateAdminVisibility();
-        } catch (e) {
-            console.error('Erreur updateAdminVisibility:', e);
-        }
-        
-        try {
-            updateNavigationByRole();
-        } catch (e) {
-            console.error('Erreur updateNavigationByRole:', e);
-        }
-        
-        navigateTo('dashboard');
-    } catch (error) {
-        console.error('Erreur dans showApp:', error);
-        alert('Erreur de chargement. Veuillez recharger la page (F5)');
-    }
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    updateUserInfo();
+    updateAdminVisibility();
+    updateNavigationByRole();
+    navigateTo('dashboard');
 }
 
 function updateNavigationByRole() {
@@ -955,7 +905,7 @@ function addRegle() {
 // ==================== Contributions ====================
 function loadContributions() {
     const contributions = getData(DB_KEYS.CONTRIBUTIONS);
-    const users = getData(DB_KEYS.USERS);
+    const users = getData(DB_KEYS.USERS).filter(function(u) { return u.role === 'membre'; });
     
     const filterMembre = document.getElementById('filter-contribution-membre');
     filterMembre.innerHTML = '<option value="">Tous les membres</option>' + users.map(function(u) { 
@@ -1006,7 +956,7 @@ function loadContributions() {
 }
 
 function addContribution() {
-    const users = getData(DB_KEYS.USERS);
+    const users = getData(DB_KEYS.USERS).filter(function(u) { return u.role === 'membre'; });
     const membresOptions = users.map(function(u) { 
         return '<option value="' + u.prenom + ' ' + u.nom + '" data-id="' + u.id + '">' + u.prenom + ' ' + u.nom + '</option>'; 
     }).join('');
@@ -1039,7 +989,6 @@ function addContribution() {
         
         contributions.push(newContribution);
         saveData(DB_KEYS.CONTRIBUTIONS, contributions);
-        addAuditLog('Contribution ajoutee', 'Contribution de ' + newContribution.montant.toLocaleString() + ' GNF pour ' + newContribution.membre);
         
         closeModal();
         loadContributions();
@@ -1082,7 +1031,7 @@ function filterContributions() {
 // ==================== Cotisations ====================
 function loadCotisations() {
     const cotisations = getData(DB_KEYS.COTISATIONS);
-    const users = getData(DB_KEYS.USERS);
+    const users = getData(DB_KEYS.USERS).filter(function(u) { return u.role === 'membre'; });
     
     const totalDu = cotisations.reduce(function(sum, c) { return sum + c.montantDu; }, 0);
     const totalPaye = cotisations.reduce(function(sum, c) { return sum + c.montantPaye; }, 0);
@@ -1099,8 +1048,7 @@ function loadCotisations() {
         tableBody.innerHTML = cotisations.map(function(cotisation) {
             let actions = '';
             if (currentUser.role === 'admin') {
-                actions = '<button class="btn btn-sm btn-primary" onclick="modifierMontantDu(' + cotisation.id + ')">Modifier Total</button> ';
-                actions += '<button class="btn btn-sm btn-success" onclick="ajouterMontantCotisation(' + cotisation.id + ')">Ajouter</button> ';
+                actions = '<button class="btn btn-sm btn-success" onclick="ajouterMontantCotisation(' + cotisation.id + ')">Ajouter</button> ';
                 actions += '<button class="btn btn-sm btn-danger" onclick="retirerMontantCotisation(' + cotisation.id + ')">Retirer</button> ';
                 const btnText = cotisation.statut === 'paye' ? 'Marquer impaye' : 'Marquer paye';
                 actions += '<button class="btn btn-sm btn-secondary" onclick="toggleCotisationStatut(' + cotisation.id + ')">' + btnText + '</button>';
@@ -1118,14 +1066,14 @@ function ajouterMontantCotisation(id) {
     
     if (index === -1) return;
     
-    const montant = prompt('Entrez le montant a ajouter (minimum 100 000 GNF):', '');
+    const montant = prompt('Entrez le montant a ajouter (GNF):', '');
     
     if (montant === null || montant === '') return;
     
     const montantNum = parseInt(montant);
     
-    if (isNaN(montantNum) || montantNum < 100000) {
-        alert('Le montant minimum est de 100 000 GNF!');
+    if (isNaN(montantNum) || montantNum <= 0) {
+        alert('Veuillez entrer un montant valide!');
         return;
     }
     
@@ -1139,7 +1087,6 @@ function ajouterMontantCotisation(id) {
     }
     
     saveData(DB_KEYS.COTISATIONS, cotisations);
-    addAuditLog('Cotisation modifiee', 'Ajout de ' + montantNum.toLocaleString() + ' GNF pour ' + cotisations[index].membre);
     loadCotisations();
     alert('Montant ajoute avec succes!');
 }
@@ -1150,14 +1097,14 @@ function retirerMontantCotisation(id) {
     
     if (index === -1) return;
     
-    const montant = prompt('Entrez le montant a retirer (minimum 100 000 GNF):', '');
+    const montant = prompt('Entrez le montant a retirer (GNF):', '');
     
     if (montant === null || montant === '') return;
     
     const montantNum = parseInt(montant);
     
-    if (isNaN(montantNum) || montantNum < 100000) {
-        alert('Le montant minimum est de 100 000 GNF!');
+    if (isNaN(montantNum) || montantNum <= 0) {
+        alert('Veuillez entrer un montant valide!');
         return;
     }
     
@@ -1176,7 +1123,6 @@ function retirerMontantCotisation(id) {
     }
     
     saveData(DB_KEYS.COTISATIONS, cotisations);
-    addAuditLog('Cotisation modifiee', 'Retrait de ' + montantNum.toLocaleString() + ' GNF pour ' + cotisations[index].membre);
     loadCotisations();
     alert('Montant retire avec succes!');
 }
@@ -1196,45 +1142,8 @@ function toggleCotisationStatut(id) {
             cotisations[index].datePaiement = new Date().toISOString().split('T')[0];
         }
         saveData(DB_KEYS.COTISATIONS, cotisations);
-        addAuditLog('Cotisation modifiee', 'Statut modifie pour ' + cotisations[index].membre);
         loadCotisations();
     }
-}
-
-function modifierMontantDu(id) {
-    const cotisations = getData(DB_KEYS.COTISATIONS);
-    const index = cotisations.findIndex(function(c) { return c.id === id; });
-    
-    if (index === -1) return;
-    
-    const montantActuel = cotisations[index].montantDu;
-    const nouveauMontant = prompt('Entrez le nouveau montant total a payer (minimum 100 000 GNF):\nMontant actuel: ' + montantActuel.toLocaleString() + ' GNF', montantActuel);
-    
-    if (nouveauMontant === null || nouveauMontant === '') return;
-    
-    const montantNum = parseInt(nouveauMontant);
-    
-    if (isNaN(montantNum) || montantNum < 100000) {
-        alert('Le montant minimum est de 100 000 GNF!');
-        return;
-    }
-    
-    cotisations[index].montantDu = montantNum;
-    
-    // Recalculer le statut
-    if (cotisations[index].montantPaye >= cotisations[index].montantDu) {
-        cotisations[index].statut = 'paye';
-        if (!cotisations[index].datePaiement) {
-            cotisations[index].datePaiement = new Date().toISOString().split('T')[0];
-        }
-    } else {
-        cotisations[index].statut = 'impaye';
-    }
-    
-    saveData(DB_KEYS.COTISATIONS, cotisations);
-    addAuditLog('Cotisation modifiee', 'Montant total modifie de ' + montantActuel.toLocaleString() + ' a ' + montantNum.toLocaleString() + ' GNF pour ' + cotisations[index].membre);
-    loadCotisations();
-    alert('Montant total modifie avec succes!');
 }
 
 // ==================== Gestion (Admin Management) ====================
@@ -1258,38 +1167,13 @@ function loadGestion() {
     const tableBody = document.getElementById('gestion-users-table');
     tableBody.innerHTML = users.map(function(user) {
         let actions = '';
-        
-        // S'assurer que chaque utilisateur a un statut (actif par défaut)
-        if (typeof user.statut === 'undefined') {
-            user.statut = 'actif';
-        }
-        
-        const isBloque = user.statut === 'bloque';
-        const statutBadge = isBloque 
-            ? '<span class="badge-danger">Bloqué</span>' 
-            : '<span class="badge-success">Actif</span>';
-        
         if (currentUser.role === 'admin' && user.id !== currentUser.id) {
-            actions = '<button class="btn btn-sm btn-primary" onclick="toggleUserRole(' + user.id + ')">Changer rôle</button> ';
-            
-            if (isBloque) {
-                actions += '<button class="btn btn-sm btn-success" onclick="toggleUserStatut(' + user.id + ')">Débloquer</button>';
-            } else {
-                actions += '<button class="btn btn-sm btn-warning" onclick="toggleUserStatut(' + user.id + ')">Bloquer</button>';
-            }
-        } else if (user.id === currentUser.id) {
-            actions = '<em style="color: #999;">Vous</em>';
+            actions = '<button class="btn btn-sm btn-primary" onclick="toggleUserRole(' + user.id + ')">Changer rôle</button>';
         }
-        
         const roleClass = roleClasses[user.role] || 'badge-membre';
         const roleLabel = roleLabels[user.role] || 'Membre';
-        const userStyle = isBloque ? 'style="opacity: 0.6; background: #fff5f5;"' : '';
-        
-        return '<tr ' + userStyle + '><td>' + user.prenom + ' ' + user.nom + '</td><td>' + user.email + '</td><td><span class="' + roleClass + '">' + roleLabel + '</span></td><td>' + statutBadge + '</td><td>' + formatDate(user.dateInscription) + '</td><td>' + actions + '</td></tr>';
+        return '<tr><td>' + user.prenom + ' ' + user.nom + '</td><td>' + user.email + '</td><td><span class="' + roleClass + '">' + roleLabel + '</span></td><td>' + formatDate(user.dateInscription) + '</td><td>' + actions + '</td></tr>';
     }).join('');
-    
-    // Sauvegarder les statuts ajoutés
-    saveData(DB_KEYS.USERS, users);
 }
 
 function toggleUserRole(userId) {
@@ -1325,40 +1209,14 @@ function toggleUserRole(userId) {
             e.preventDefault();
             
             const newRole = document.getElementById('user-role-select').value;
-            const oldRole = users[index].role;
             users[index].role = newRole;
             saveData(DB_KEYS.USERS, users);
             
-            addAuditLog('Role modifie', 'Role de ' + users[index].prenom + ' ' + users[index].nom + ' change de ' + oldRole + ' a ' + newRole);
+            addAuditLog('Rôle modifié', `Rôle de ${users[index].prenom} ${users[index].nom} changé en ${newRole}`);
             
             closeModal();
             loadGestion();
-            alert('Rôle modifié avec succès!');
         });
-    }
-}
-
-function toggleUserStatut(userId) {
-    const users = getData(DB_KEYS.USERS);
-    const index = users.findIndex(function(u) { return u.id === userId; });
-    
-    if (index !== -1) {
-        const user = users[index];
-        const isBloque = user.statut === 'bloque';
-        
-        const action = isBloque ? 'débloquer' : 'bloquer';
-        const confirmMsg = 'Voulez-vous vraiment ' + action + ' le compte de ' + user.prenom + ' ' + user.nom + ' ?';
-        
-        if (confirm(confirmMsg)) {
-            user.statut = isBloque ? 'actif' : 'bloque';
-            saveData(DB_KEYS.USERS, users);
-            
-            const actionLog = isBloque ? 'Compte debloque' : 'Compte bloque';
-            addAuditLog(actionLog, 'Compte de ' + user.prenom + ' ' + user.nom + ' ' + (isBloque ? 'debloque' : 'bloque'));
-            
-            loadGestion();
-            alert('Statut modifié avec succès!');
-        }
     }
 }
 
@@ -1807,7 +1665,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const password = document.getElementById('password').value;
         
         const result = login(email, password);
-        if (result === null) return; // mode async : loginSupabase gère lui-même l'affichage
         if (result.success) {
             showApp();
         } else {
@@ -1827,30 +1684,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Mobile menu toggle
-    const sidebar = document.querySelector('.sidebar');
-    const menuToggle = document.getElementById('menu-toggle');
-    
-    menuToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        sidebar.classList.toggle('open');
-    });
-    
-    // Fermer le menu en cliquant à l'extérieur
-    document.addEventListener('click', function(e) {
-        if (sidebar.classList.contains('open') && 
-            !sidebar.contains(e.target) && 
-            e.target !== menuToggle) {
-            sidebar.classList.remove('open');
-        }
-    });
-    
-    // Fermer le menu après avoir cliqué sur un lien de navigation
-    document.querySelectorAll('.nav-item').forEach(function(item) {
-        item.addEventListener('click', function() {
-            if (window.innerWidth <= 1024) {
-                sidebar.classList.remove('open');
-            }
-        });
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
     });
     
     // Modal close
@@ -2068,7 +1903,7 @@ function ajouterDocument() {
     const modalBody = document.getElementById('modal-body');
     
     modalTitle.textContent = 'Ajouter un document';
-    modalBody.innerHTML = '<form id="document-form"><div class="form-group"><label for="doc-nom">Nom du document</label><input type="text" id="doc-nom" required></div><div class="form-group"><label for="doc-description">Description</label><textarea id="doc-description" rows="2"></textarea></div><div class="form-group"><label for="doc-categorie">Categorie</label><select id="doc-categorie" required><option value="Procedures">Procedures</option><option value="Rapports">Rapports</option><option value="Formulaires">Formulaires</option><option value="Autres">Autres</option></select></div><div class="form-group"><label for="doc-url">URL du fichier</label><input type="url" id="doc-url" placeholder="https://exemple.com/fichier.pdf" required></div><button type="submit" class="btn btn-primary btn-block">Ajouter</button></form>';
+    modalBody.innerHTML = '<form id=" document-form\><div class=\form-group\><label for=\doc-nom\>Nom du document</label><input type=\text\ id=\doc-nom\ required></div><div class=\form-group\><label for=\doc-description\>Description</label><textarea id=\doc-description\ rows=\2\></textarea></div><div class=\form-group\><label for=\doc-categorie\>Categorie</label><select id=\doc-categorie\ required><option value=\Procedures\>Procedures</option><option value=\Rapports\>Rapports</option><option value=\Formulaires\>Formulaires</option><option value=\Autres\>Autres</option></select></div><div class=\form-group\><label for=\doc-url\>URL du fichier</label><input type=\url\ id=\doc-url\ placeholder=\https://exemple.com/fichier.pdf\ required></div><button type=\submit\ class=\btn btn-primary btn-block\>Ajouter</button></form>';
  
  modal.classList.remove('hidden');
  
@@ -2089,7 +1924,7 @@ function ajouterDocument() {
  
  documents.push(newDoc);
  saveData(DB_KEYS.DOCUMENTS, documents);
- addAuditLog('Document ajoute', 'Document ' + newDoc.nom + ' ajoute dans ' + newDoc.categorie);
+ addAuditLog('Document ajoute', 'Document \ + newDoc.nom + \ ajoute dans ' + newDoc.categorie);
  
  closeModal();
  loadDocuments();
@@ -2102,7 +1937,7 @@ function publierMessage() {
  const modalBody = document.getElementById('modal-body');
  
  modalTitle.textContent = 'Publier un message';
- modalBody.innerHTML = '<form id="message-form"><div class="form-group"><label for="msg-titre">Titre</label><input type="text" id="msg-titre" required></div><div class="form-group"><label for="msg-contenu">Contenu</label><textarea id="msg-contenu" rows="6" required></textarea></div><button type="submit" class="btn btn-primary btn-block">Publier</button></form>';
+ modalBody.innerHTML = '<form id=\message-form\><div class=\form-group\><label for=\msg-titre\>Titre</label><input type=\text\ id=\msg-titre\ required></div><div class=\form-group\><label for=\msg-contenu\>Contenu</label><textarea id=\msg-contenu\ rows=\6\ required></textarea></div><button type=\submit\ class=\btn btn-primary btn-block\>Publier</button></form>';
  
  modal.classList.remove('hidden');
  
@@ -2121,7 +1956,7 @@ function publierMessage() {
  
  messages.push(newMsg);
  saveData(DB_KEYS.MESSAGES, messages);
- addAuditLog('Message publie', 'Message ' + newMsg.titre + ' publie');
+ addAuditLog('Message publie', 'Message \ + newMsg.titre + \ publie');
  
  closeModal();
  loadMessages();
@@ -2139,7 +1974,7 @@ function ajouterReunion() {
  const modalBody = document.getElementById('modal-body');
  
  modalTitle.textContent = 'Planifier une reunion';
- modalBody.innerHTML = '<form id="reunion-form"><div class="form-group"><label for="reunion-titre">Titre</label><input type="text" id="reunion-titre" required></div><div class="form-group"><label for="reunion-description">Description</label><textarea id="reunion-description" rows="3" required></textarea></div><div class="form-group"><label for="reunion-date">Date</label><input type="date" id="reunion-date" required></div><div class="form-group"><label for="reunion-heure">Heure</label><input type="time" id="reunion-heure" required></div><div class="form-group"><label for="reunion-lieu">Lieu</label><input type="text" id="reunion-lieu" required></div><button type="submit" class="btn btn-primary btn-block">Planifier</button></form>';
+ modalBody.innerHTML = '<form id=\reunion-form\><div class=\form-group\><label for=\reunion-titre\>Titre</label><input type=\text\ id=\reunion-titre\ required></div><div class=\form-group\><label for=\reunion-description\>Description</label><textarea id=\reunion-description\ rows=\3\ required></textarea></div><div class=\form-group\><label for=\reunion-date\>Date</label><input type=\date\ id=\reunion-date\ required></div><div class=\form-group\><label for=\reunion-heure\>Heure</label><input type=\time\ id=\reunion-heure\ required></div><div class=\form-group\><label for=\reunion-lieu\>Lieu</label><input type=\text\ id=\reunion-lieu\ required></div><button type=\submit\ class=\btn btn-primary btn-block\>Planifier</button></form>';
  
  modal.classList.remove('hidden');
  

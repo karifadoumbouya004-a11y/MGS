@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Connexion Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        button {
+            background: #1a365d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .result {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test de Connexion Minimal</h1>
+    
+    <h3>Étape 1: Réinitialiser</h3>
+    <button onclick="resetData()">Réinitialiser les données</button>
+    
+    <h3>Étape 2: Se connecter</h3>
+    <input type="email" id="email" value="karifadoumbouya004@gmail.com" placeholder="Email">
+    <input type="password" id="password" value="Conakry224" placeholder="Mot de passe">
+    <button onclick="testLogin()">Test Connexion</button>
+    
+    <div id="result"></div>
+    
+    <h3>Étape 3: Si ça marche</h3>
+    <button onclick="goToApp()">Aller vers l'application principale</button>
+
+    <script>
+        const DB_KEYS = {
+            USERS: 'intranet_users',
+            SESSION: 'intranet_session'
+        };
+        
+        function resetData() {
+            localStorage.clear();
+            
+            const users = [
+                {
+                    id: 1,
+                    email: 'karifadoumbouya004@gmail.com',
+                    password: 'Conakry224',
+                    nom: 'Doumbouya',
+                    prenom: 'Karifa',
+                    role: 'admin',
+                    dateInscription: '2024-01-01'
+                }
+            ];
+            
+            for (let i = 1; i <= 20; i++) {
+                const num = i.toString().padStart(2, '0');
+                let role = 'membre';
+                if (i <= 2) role = 'cadre';
+                else if (i <= 5) role = 'responsable';
+                
+                users.push({
+                    id: i + 1,
+                    email: `Membres${num}@entreprise.fr`,
+                    password: 'membre123',
+                    nom: `Membre${num}`,
+                    prenom: 'Employe',
+                    role: role,
+                    dateInscription: '2024-01-01'
+                });
+            }
+            
+            localStorage.setItem(DB_KEYS.USERS, JSON.stringify(users));
+            
+            document.getElementById('result').innerHTML = '<div class="result success">✅ Données réinitialisées! Vous pouvez maintenant tester la connexion.</div>';
+        }
+        
+        function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const usersData = localStorage.getItem(DB_KEYS.USERS);
+            
+            if (!usersData) {
+                document.getElementById('result').innerHTML = '<div class="result error">❌ Aucune donnée! Cliquez d\'abord sur "Réinitialiser les données"</div>';
+                return;
+            }
+            
+            const users = JSON.parse(usersData);
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                localStorage.setItem(DB_KEYS.SESSION, JSON.stringify(user));
+                document.getElementById('result').innerHTML = `
+                    <div class="result success">
+                        <h2>✅ Connexion Réussie!</h2>
+                        <p><strong>Nom:</strong> ${user.prenom} ${user.nom}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Rôle:</strong> ${user.role}</p>
+                        <p style="margin-top: 20px;">Vous pouvez maintenant aller vers l'application principale.</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('result').innerHTML = '<div class="result error">❌ Email ou mot de passe incorrect!</div>';
+            }
+        }
+        
+        function goToApp() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

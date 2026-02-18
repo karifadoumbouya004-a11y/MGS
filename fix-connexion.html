@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>🔧 FIX Connexion Membres</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .btn { padding: 15px 30px; margin: 10px 5px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .btn:hover { opacity: 0.9; }
+        .result { margin: 15px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        .step { background: #e9ecef; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Résolution problème connexion membres</h1>
+        
+        <div class="step">
+            <h3>Étape 1: Diagnostic automatique</h3>
+            <button class="btn btn-primary" onclick="diagnosticComplet()">🔍 Lancer le diagnostic</button>
+        </div>
+        
+        <div id="diagnostic-results"></div>
+        
+        <div class="step">
+            <h3>Étape 2: Solution rapide</h3>
+            <button class="btn btn-danger" onclick="reinitialiserDonnees()">🔄 Réinitialiser TOUT</button>
+            <button class="btn btn-success" onclick="corrigerDonnees()">🔧 Corriger les données existantes</button>
+        </div>
+        
+        <div id="fix-results"></div>
+        
+        <div class="step">
+            <h3>Étape 3: Test final</h3>
+            <button class="btn btn-success" onclick="testerConnexionMembre()">✅ Tester connexion Membre01</button>
+            <button class="btn btn-success" onclick="window.location.href='index.html'">➡️ Aller à l'application</button>
+        </div>
+        
+        <div id="test-results"></div>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        function log(message, type, targetId) {
+            const target = document.getElementById(targetId);
+            const div = document.createElement('div');
+            div.className = 'result ' + type;
+            div.innerHTML = message;
+            target.appendChild(div);
+        }
+        
+        function diagnosticComplet() {
+            const target = document.getElementById('diagnostic-results');
+            target.innerHTML = '<h3>📊 Résultats du diagnostic</h3>';
+            
+            try {
+                // 1. Vérifier app.js
+                if (typeof DB_KEYS === 'undefined') {
+                    log('❌ ERREUR CRITIQUE: app.js non chargé', 'error', 'diagnostic-results');
+                    return;
+                }
+                log('✅ app.js chargé correctement', 'success', 'diagnostic-results');
+                
+                // 2. Initialiser les données
+                initDefaultData();
+                log('✅ initDefaultData() exécuté', 'success', 'diagnostic-results');
+                
+                // 3. Vérifier les utilisateurs
+                const users = getData(DB_KEYS.USERS);
+                log('📊 Nombre d\'utilisateurs: <strong>' + users.length + '</strong>', 'info', 'diagnostic-results');
+                
+                if (users.length === 0) {
+                    log('❌ PROBLÈME: Aucun utilisateur trouvé!', 'error', 'diagnostic-results');
+                    log('👉 Solution: Cliquez sur "Réinitialiser TOUT"', 'warning', 'diagnostic-results');
+                    return;
+                }
+                
+                // 4. Vérifier l'admin
+                const admin = users.find(u => u.email === 'karifadoumbouya004@gmail.com');
+                if (admin) {
+                    log('✅ Admin trouvé: ' + admin.prenom + ' ' + admin.nom, 'success', 'diagnostic-results');
+                    log('&nbsp;&nbsp;&nbsp;📧 Email: <code>' + admin.email + '</code>', 'info', 'diagnostic-results');
+                    log('&nbsp;&nbsp;&nbsp;🔑 Password: <code>' + admin.password + '</code>', 'info', 'diagnostic-results');
+                    log('&nbsp;&nbsp;&nbsp;👔 Rôle: <code>' + admin.role + '</code>', 'info', 'diagnostic-results');
+                } else {
+                    log('❌ Admin non trouvé!', 'error', 'diagnostic-results');
+                }
+                
+                // 5. Vérifier les membres
+                const membres = users.filter(u => u.email.includes('Membres'));
+                log('📊 Membres trouvés: <strong>' + membres.length + '</strong>', 'info', 'diagnostic-results');
+                
+                if (membres.length === 0) {
+                    log('❌ PROBLÈME: Aucun membre trouvé!', 'error', 'diagnostic-results');
+                    log('👉 Solution: Cliquez sur "Réinitialiser TOUT"', 'warning', 'diagnostic-results');
+                    return;
+                }
+                
+                // 6. Afficher quelques membres
+                log('<h4>👥 Exemples de membres:</h4>', 'info', 'diagnostic-results');
+                membres.slice(0, 5).forEach(m => {
+                    const statutText = m.statut ? ' - Statut: ' + m.statut : ' - <span style="color:red;">Pas de statut défini</span>';
+                    log('&nbsp;&nbsp;• <strong>' + m.prenom + ' ' + m.nom + '</strong><br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;📧 <code>' + m.email + '</code><br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;🔑 <code>' + m.password + '</code><br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;👔 ' + m.role + statutText, 
+                        'info', 'diagnostic-results');
+                });
+                
+                // 7. Vérifier les statuts
+                const sansStatut = users.filter(u => !u.statut);
+                if (sansStatut.length > 0) {
+                    log('⚠️ ATTENTION: ' + sansStatut.length + ' utilisateurs sans statut défini', 'warning', 'diagnostic-results');
+                    log('👉 Solution: Cliquez sur "Corriger les données existantes"', 'warning', 'diagnostic-results');
+                }
+                
+                // 8. Test de connexion factice
+                const testUser = membres[0];
+                log('<h4>🧪 Test de connexion (simulation):</h4>', 'info', 'diagnostic-results');
+                log('Email testé: <code>' + testUser.email + '</code>', 'info', 'diagnostic-results');
+                log('Password testé: <code>' + testUser.password + '</code>', 'info', 'diagnostic-results');
+                
+                const result = login(testUser.email, testUser.password);
+                if (result.success) {
+                    log('✅✅ TEST RÉUSSI: La connexion fonctionne!', 'success', 'diagnostic-results');
+                    log('👤 Connecté en tant que: ' + currentUser.prenom + ' ' + currentUser.nom, 'success', 'diagnostic-results');
+                    log('🎉 PROBLÈME RÉSOLU! Vous pouvez maintenant utiliser l\'application.', 'success', 'diagnostic-results');
+                    logout(); // Se déconnecter du test
+                } else {
+                    log('❌ TEST ÉCHOUÉ: ' + result.message, 'error', 'diagnostic-results');
+                    log('👉 Cliquez sur "Corriger les données" ou "Réinitialiser"', 'warning', 'diagnostic-results');
+                }
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error', 'diagnostic-results');
+                log('<pre>' + error.stack + '</pre>', 'error', 'diagnostic-results');
+            }
+        }
+        
+        function reinitialiserDonnees() {
+            if (!confirm('⚠️ ATTENTION!\n\nCette action va:\n- Supprimer TOUTES les données\n- Recréer 21 utilisateurs (1 admin + 20 membres)\n- Réinitialiser toutes les sections\n\nContinuer?')) {
+                return;
+            }
+            
+            const target = document.getElementById('fix-results');
+            target.innerHTML = '<h3>🔄 Réinitialisation en cours...</h3>';
+            
+            try {
+                // Vider TOUT le localStorage
+                localStorage.clear();
+                log('✅ localStorage vidé', 'success', 'fix-results');
+                
+                // Recréer les données
+                initDefaultData();
+                log('✅ Données recréées', 'success', 'fix-results');
+                
+                // Vérifier
+                const users = getData(DB_KEYS.USERS);
+                log('✅ ' + users.length + ' utilisateurs créés', 'success', 'fix-results');
+                
+                // Vérifier les statuts
+                users.forEach(u => {
+                    if (!u.statut) u.statut = 'actif';
+                });
+                saveData(DB_KEYS.USERS, users);
+                log('✅ Statuts définis pour tous les utilisateurs', 'success', 'fix-results');
+                
+                log('🎉 RÉINITIALISATION TERMINÉE!', 'success', 'fix-results');
+                log('👉 Cliquez sur "Tester connexion Membre01" pour vérifier', 'info', 'fix-results');
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error', 'fix-results');
+            }
+        }
+        
+        function corrigerDonnees() {
+            const target = document.getElementById('fix-results');
+            target.innerHTML = '<h3>🔧 Correction des données...</h3>';
+            
+            try {
+                const users = getData(DB_KEYS.USERS);
+                
+                if (users.length === 0) {
+                    log('❌ Aucun utilisateur trouvé. Utilisez "Réinitialiser TOUT" à la place.', 'error', 'fix-results');
+                    return;
+                }
+                
+                let corrected = 0;
+                users.forEach(u => {
+                    if (!u.statut) {
+                        u.statut = 'actif';
+                        corrected++;
+                    }
+                });
+                
+                saveData(DB_KEYS.USERS, users);
+                log('✅ ' + corrected + ' utilisateurs corrigés', 'success', 'fix-results');
+                log('✅ Tous les utilisateurs ont maintenant un statut "actif"', 'success', 'fix-results');
+                log('👉 Cliquez sur "Tester connexion Membre01" pour vérifier', 'info', 'fix-results');
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error', 'fix-results');
+            }
+        }
+        
+        function testerConnexionMembre() {
+            const target = document.getElementById('test-results');
+            target.innerHTML = '<h3>🧪 Test de connexion...</h3>';
+            
+            try {
+                const email = 'Membres01@entreprise.fr';
+                const password = 'membre123';
+                
+                log('Email: <code>' + email + '</code>', 'info', 'test-results');
+                log('Password: <code>' + password + '</code>', 'info', 'test-results');
+                
+                const users = getData(DB_KEYS.USERS);
+                const user = users.find(u => u.email === email);
+                
+                if (!user) {
+                    log('❌ ERREUR: Utilisateur non trouvé dans la base', 'error', 'test-results');
+                    log('Emails disponibles:', 'info', 'test-results');
+                    users.filter(u => u.email.includes('Membres')).slice(0, 5).forEach(u => {
+                        log('&nbsp;&nbsp;• ' + u.email, 'info', 'test-results');
+                    });
+                    return;
+                }
+                
+                log('✅ Utilisateur trouvé: ' + user.prenom + ' ' + user.nom, 'success', 'test-results');
+                log('&nbsp;&nbsp;Password stocké: <code>' + user.password + '</code>', 'info', 'test-results');
+                log('&nbsp;&nbsp;Rôle: <code>' + user.role + '</code>', 'info', 'test-results');
+                log('&nbsp;&nbsp;Statut: <code>' + (user.statut || 'NON DÉFINI') + '</code>', 'info', 'test-results');
+                
+                const result = login(email, password);
+                
+                if (result.success) {
+                    log('✅✅✅ SUCCÈS! CONNEXION RÉUSSIE!', 'success', 'test-results');
+                    log('👤 Connecté en tant que: <strong>' + currentUser.prenom + ' ' + currentUser.nom + '</strong>', 'success', 'test-results');
+                    log('👔 Rôle: <strong>' + currentUser.role + '</strong>', 'success', 'test-results');
+                    
+                    if (PERMISSIONS[currentUser.role]) {
+                        log('🔓 Accès à ' + PERMISSIONS[currentUser.role].length + ' pages', 'success', 'test-results');
+                        log('&nbsp;&nbsp;Pages: ' + PERMISSIONS[currentUser.role].join(', '), 'info', 'test-results');
+                    }
+                    
+                    log('<div style="margin-top: 20px; padding: 20px; background: #d4edda; border: 2px solid #28a745; border-radius: 5px; text-align: center;">' +
+                        '<h2 style="color: #155724; margin: 0;">🎉 PROBLÈME RÉSOLU!</h2>' +
+                        '<p style="margin: 10px 0;">La connexion des membres fonctionne maintenant!</p>' +
+                        '<button class="btn btn-success" onclick="window.location.href=\'index.html\'" style="font-size: 18px;">➡️ Aller sur l\'application</button>' +
+                        '</div>', 'success', 'test-results');
+                    
+                    // Se déconnecter du test
+                    setTimeout(() => logout(), 1000);
+                    
+                } else {
+                    log('❌ ÉCHEC: ' + result.message, 'error', 'test-results');
+                    
+                    if (result.message.includes('bloqué')) {
+                        log('⚠️ Le compte est BLOQUÉ!', 'warning', 'test-results');
+                        log('Solution: Connectez-vous en admin et débloquez le compte dans "Gestion des Utilisateurs"', 'warning', 'test-results');
+                    }
+                }
+                
+            } catch (error) {
+                log('❌ ERREUR: ' + error.message, 'error', 'test-results');
+                log('<pre>' + error.stack + '</pre>', 'error', 'test-results');
+            }
+        }
+        
+        // Auto-lancement au chargement
+        window.onload = function() {
+            setTimeout(diagnosticComplet, 500);
+        };
+    </script>
+</body>
+</html>
